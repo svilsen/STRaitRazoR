@@ -76,7 +76,7 @@ STRaitRazorSTRMPS <- function(inputLocation, control = STRaitRazorSTRMPS.control
         stop("Couldn't find STRaitRazor commandline tool.")
     }
 
-    outputLocation <- tempdir()
+    outputLocation <- paste(tempdir(), "all_seqs_temp", sep = "/")
     STRaitRazor(inputLocation, outputLocation = outputLocation, commandLineArguments = control$commandLineArguments,
                 configFile = control$configFile, numberOfThreads = control$numberOfThreads)
 
