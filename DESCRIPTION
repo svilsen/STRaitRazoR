@@ -2,13 +2,14 @@ Package: STRaitRazoR
 Type: Package
 Title: STRaitRazoR
 Version: 0.1.0
-Author: 
+Author: Søren B. Vilsen
 Maintainer: Søren B. Vilsen <svilsen@math.aau.dk>
 Description: Simple wrapping function for the STRait Razor v3 command line tool on Linux systems.
-License: 
+License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports: 
+    methods,
     readr, 
     dplyr, 
     tidyr
