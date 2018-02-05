@@ -1,6 +1,6 @@
 #' @title STRaitRazor v3
 #'
-#' @description Simple wrap function for calling the command line tool STRaitRazor v3 directly from R.
+#' @description Simple wrap function for calling the command line tool STRaitRazor v3 directly from R (on linux systems).
 #'
 #' @param inputLocation Path to fastq file.
 #' @param outputLocation Path to the .txt returned by the STRait Razor v3 tool
@@ -9,12 +9,10 @@
 #' @param numberOfThreads The number of threads used to run the analysis.
 #'
 #' @param return Nothing is returned to R, but a .txt file is created and stored at the output location.
-STRaitRazor <- function(inputLocation, outputLocation, commandLineArguments = NULL, configFile  = NULL, numberOfThreads = 4) {
+STRaitRazorLinux <- function(inputLocation, outputLocation, commandLineArguments = NULL, configFile  = NULL, numberOfThreads = 4) {
     configFile = ifelse(is.null(configFile), "forenseq", configFile)
     config = switch(tolower(configFile),
                     "forenseq" = "Forenseq.config",
-                    "forenseqstrs" = "ForenseqSTRs.config",
-                    "forenseqautosomal" = "ForenseqAUTOSOMAL.config",
                     "powerseq" = "Powerseq.config")
 
     STRaitPath <- system.file("STRaitRazor", "", package = "STRaitRazoR")
@@ -31,21 +29,11 @@ STRaitRazor <- function(inputLocation, outputLocation, commandLineArguments = NU
         commandLineSTRaitRazor <- paste(STRaitPath, "str8rzr ", commandLineArguments, " ", STRaitPath, config, " ", inputLocation, " > ", outputLocation, sep = "")
         isWindows <- FALSE
     }
-    else if (tolower(Sys.info()['sysname']) == "windows") {
-        commandLineSTRaitRazor <- paste(STRaitPath, "str8rzr.exe ", commandLineArguments, " ", STRaitPath, config, " ", inputLocation, " > ", outputLocation, sep = "")
-        isWindows <- TRUE
-    }
     else {
-        commandLineSTRaitRazor <- paste(STRaitPath, "str8rzr_osX ", commandLineArguments, " ", STRaitPath, config, " ", inputLocation, " > ", outputLocation, sep = "")
-        isWindows <- FALSE
+        stop("Not implemented for OSX or windows.")
     }
 
-    if (isWindows) {
-        system2(commandLineSTRaitRazor)
-    }
-    else {
-        system(commandLineSTRaitRazor)
-    }
+    system(commandLineSTRaitRazor)
 }
 
 #' @title STRaitRazor to STRMPS control function
@@ -67,25 +55,21 @@ setClass("stringCoverageList")
 #' @description A function for converting the STRaitRazor output to an object useable by the STRMPS-package.
 #'
 #' @param inputLocation Path to fastq file.
+#' @param outputLocation Path to stored output; if NULL a temp folder is used.
 #' @param control A control object containing additional input for the \link{STRaitRazor} function.
 #'
 #' @return A list of tibbles used by the STRMPS package.
-STRaitRazorSTRMPS <- function(inputLocation, control = STRaitRazorSTRMPS.control()) {
+STRaitRazorSTRMPS <- function(inputLocation, outputLocation = NULL, control = STRaitRazorSTRMPS.control()) {
     STRaitPath <- system.file("STRaitRazor", "", package = "STRaitRazoR")
     if (length(STRaitPath) == 0) {
         stop("Couldn't find STRaitRazor commandline tool.")
     }
 
-    if (tolower(Sys.info()['sysname']) == "windows") {
-        outputLocation <- paste(tempdir(), "all_seqs_temp.txt", sep = "\\")
-    }
-    else {
+    if (is.null(outputLocation)) {
         outputLocation <- paste(tempdir(), "all_seqs_temp.txt", sep = "/")
+        STRaitRazorLinux(inputLocation, outputLocation = outputLocation, commandLineArguments = control$commandLineArguments,
+                    configFile = control$configFile, numberOfThreads = control$numberOfThreads)
     }
-
-
-    STRaitRazor(inputLocation, outputLocation = outputLocation, commandLineArguments = control$commandLineArguments,
-                configFile = control$configFile, numberOfThreads = control$numberOfThreads)
 
     addedInformation <- bind_rows(read_delim(paste(STRaitPath, "/Forenseq.config", sep = ""), "\t", skip = 1,
                                    col_names = c("Marker", "Type", "F", "R", "M", "MotifLength", "O"),
