@@ -77,10 +77,10 @@ STRaitRazorSTRMPS <- function(inputLocation, control = STRaitRazorSTRMPS.control
     }
 
     if (tolower(Sys.info()['sysname']) == "windows") {
-        outputLocation <- paste(tempdir(), "all_seqs_temp", sep = "\\")
+        outputLocation <- paste(tempdir(), "all_seqs_temp.txt", sep = "\\")
     }
     else {
-        outputLocation <- paste(tempdir(), "all_seqs_temp", sep = "/")
+        outputLocation <- paste(tempdir(), "all_seqs_temp.txt", sep = "/")
     }
 
 
