@@ -41,7 +41,7 @@ STRaitRazor <- function(inputLocation, outputLocation, commandLineArguments = NU
     }
 
     if (isWindows) {
-        shell(commandLineSTRaitRazor, shell = NULL)
+        system2(commandLineSTRaitRazor)
     }
     else {
         system(commandLineSTRaitRazor)
