@@ -1,3 +1,6 @@
+utils::globalVariables(c("Allele", "C1", "C2", "Coverage", "Length", "Marker", "MarkerAllele", "MotifLength",
+                         "Region", "Type"))
+
 #' @title STRaitRazor v3
 #'
 #' @description Simple wrap function for calling the command line tool STRaitRazor v3 directly from R (on linux systems).
@@ -7,15 +10,13 @@
 #' @param configFile The STRait Razor '.config' file to be used in the analysis (only ForenSeq and PowerSeq available).
 #' @param commandLineArguments Any command line arguments passed to STRait Razor excluding -c and -p.
 #' @param numberOfThreads The number of threads used to run the analysis.
-#'
-#' @param return Nothing is returned to R, but a .txt file is created and stored at the output location.
 STRaitRazorLinux <- function(inputLocation, outputLocation, commandLineArguments = NULL, configFile  = NULL, numberOfThreads = 4) {
     configFile = ifelse(is.null(configFile), "forenseq", configFile)
     config = switch(tolower(configFile),
                     "forenseq" = "Forenseq.config",
                     "powerseq" = "Powerseq.config")
 
-    STRaitPath <- system.file("STRaitRazor", "", package = "STRaitRazoR")
+    STRaitPath <- system.file("bin/STRaitRazor", "", package = "STRaitRazoR")
     if (length(STRaitPath) == 0) {
         stop("Couldn't find STRait Razor commandline tool.")
     }
@@ -38,7 +39,7 @@ STRaitRazorLinux <- function(inputLocation, outputLocation, commandLineArguments
 
 #' @title STRaitRazor to STRMPS control function
 #'
-#' @description Contains the arguments passed to the \link{STRaitRazor} function, when it is called through the \link{STRaitRazorSTRMPS} function.
+#' @description Contains the arguments passed to the \link{STRaitRazorLinux} function, when it is called through the \link{STRaitRazorSTRMPS} function.
 #'
 #' @param commandLineArguments Command line arguments passed to STRaitRazor v3.
 #' @param configFile The STRaitRazor config file used for flanking regoin identification.
@@ -49,19 +50,22 @@ STRaitRazorSTRMPS.control <- function(commandLineArguments = NULL, configFile  =
     return(list(commandLineArguments = commandLineArguments, configFile = configFile, numberOfThreads = numberOfThreads))
 }
 
+#' A string coverage list
+#'
+#' A list of tibbles, one for every marker, used to contain the sequencing information of STR MPS data.
 setClass("stringCoverageList")
 
 #' @title STRaitRazor v3 output to STRMPS data structure.
 #' @description A function for converting the STRaitRazor output to an object useable by the STRMPS-package.
 #'
 #' @param inputLocation Path to fastq file.
-#' @param outputLocation Path to stored output; if NULL a temp folder is used.
-#' @param control A control object containing additional input for the \link{STRaitRazor} function.
+#' @param outputLocation Path to stored output. If NULL a temp folder is used and the \link{STRaitRazorLinux} function is called.
+#' @param control A control object containing additional input for the \link{STRaitRazorLinux} function.
 #'
 #' @return A list of tibbles used by the STRMPS package.
 STRaitRazorSTRMPS <- function(inputLocation, outputLocation = NULL, control = STRaitRazorSTRMPS.control()) {
-    STRaitPath <- system.file("STRaitRazor", "", package = "STRaitRazoR")
-    if (length(STRaitPath) == 0) {
+    STRaitPath <- system.file("bin/STRaitRazor", "", package = "STRaitRazoR")
+    if (STRaitPath == "") {
         stop("Couldn't find STRaitRazor commandline tool.")
     }
 

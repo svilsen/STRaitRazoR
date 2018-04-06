@@ -1,1 +1,16 @@
 exportPattern("^[[:alpha:]]+")
+
+importFrom(readr, read_delim)
+importFrom(readr, col_character)
+importFrom(readr, col_integer)
+
+importFrom(magrittr, "%>%")
+
+importFrom(dplyr, mutate)
+importFrom(dplyr, select)
+importFrom(dplyr, arrange)
+importFrom(dplyr, distinct)
+importFrom(dplyr, left_join)
+importFrom(dplyr, bind_rows)
+
+importFrom(tidyr, separate)
